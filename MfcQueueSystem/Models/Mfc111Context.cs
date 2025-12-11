@@ -16,111 +16,75 @@ public partial class Mfc111Context : DbContext
     }
 
     public virtual DbSet<Employee> Employees { get; set; }
-
+    public virtual DbSet<EmployeeService> EmployeeServices { get; set; }
     public virtual DbSet<QueueLog> QueueLogs { get; set; }
-
     public virtual DbSet<Service> Services { get; set; }
-
     public virtual DbSet<ServiceWindow> ServiceWindows { get; set; }
-
     public virtual DbSet<Ticket> Tickets { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code.
         => optionsBuilder.UseSqlServer("Server=PHYSICALDAZE;Database=mfc111;Trusted_Connection=True;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Employee>(entity =>
         {
-            entity.HasKey(e => e.EmployeeId).HasName("PK__Employee__7AD04F11A47905A5");
-
-            entity.HasIndex(e => e.Login, "UQ__Employee__5E55825BC471CD63").IsUnique();
-
+            entity.HasKey(e => e.EmployeeId);
             entity.Property(e => e.FullName).HasMaxLength(255);
-            entity.Property(e => e.Login)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-
+            entity.Property(e => e.Login).HasMaxLength(50);
+            entity.Property(e => e.Password).HasMaxLength(50); // Пароль
             entity.HasOne(d => d.Window).WithMany(p => p.Employees)
-                .HasForeignKey(d => d.WindowId)
-                .HasConstraintName("FK__Employees__Windo__3E52440B");
+                .HasForeignKey(d => d.WindowId);
+        });
 
-            entity.HasMany(d => d.Services).WithMany(p => p.Employees)
-                .UsingEntity<Dictionary<string, object>>(
-                    "EmployeeService",
-                    r => r.HasOne<Service>().WithMany()
-                        .HasForeignKey("ServiceId")
-                        .HasConstraintName("FK__EmployeeS__Servi__4222D4EF"),
-                    l => l.HasOne<Employee>().WithMany()
-                        .HasForeignKey("EmployeeId")
-                        .HasConstraintName("FK__EmployeeS__Emplo__412EB0B6"),
-                    j =>
-                    {
-                        j.HasKey("EmployeeId", "ServiceId").HasName("PK__Employee__C681F411DE83AA70");
-                        j.ToTable("EmployeeServices");
-                    });
+        // ВАЖНО: Настройка таблицы связей
+        modelBuilder.Entity<EmployeeService>(entity =>
+        {
+            entity.HasKey(e => new { e.EmployeeId, e.ServiceId }); // Составной ключ
+
+            entity.HasOne(d => d.Employee).WithMany(p => p.EmployeeServices)
+                .HasForeignKey(d => d.EmployeeId);
+
+            entity.HasOne(d => d.Service).WithMany(p => p.EmployeeServices)
+                .HasForeignKey(d => d.ServiceId);
         });
 
         modelBuilder.Entity<QueueLog>(entity =>
         {
-            entity.HasKey(e => e.LogId).HasName("PK__QueueLog__5E548648BB2B54E1");
-
+            entity.HasKey(e => e.LogId);
             entity.Property(e => e.EventType).HasMaxLength(50);
             entity.Property(e => e.Note).HasMaxLength(500);
-
-            entity.HasOne(d => d.Employee).WithMany(p => p.QueueLogs)
-                .HasForeignKey(d => d.EmployeeId)
-                .HasConstraintName("FK__QueueLogs__Emplo__4AB81AF0");
-
             entity.HasOne(d => d.Ticket).WithMany(p => p.QueueLogs)
-                .HasForeignKey(d => d.TicketId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__QueueLogs__Ticke__49C3F6B7");
+                .HasForeignKey(d => d.TicketId);
         });
 
         modelBuilder.Entity<Service>(entity =>
         {
-            entity.HasKey(e => e.ServiceId).HasName("PK__Services__C51BB00A3FDF6D34");
-
-            entity.HasIndex(e => e.ServiceName, "UQ__Services__A42B5F99240A7382").IsUnique();
-
+            entity.HasKey(e => e.ServiceId);
+            entity.Property(e => e.ApplicantType).HasMaxLength(50).HasDefaultValue("Physical");
             entity.Property(e => e.ServiceGroup).HasMaxLength(100);
             entity.Property(e => e.ServiceName).HasMaxLength(255);
         });
 
         modelBuilder.Entity<ServiceWindow>(entity =>
         {
-            entity.HasKey(e => e.WindowId).HasName("PK__ServiceW__1EEC64298F57D6E1");
-
-            entity.HasIndex(e => e.WindowNumber, "UQ__ServiceW__B26FE3D8A763BF09").IsUnique();
-
-            entity.Property(e => e.Status)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+            entity.HasKey(e => e.WindowId);
+            entity.Property(e => e.Status).HasMaxLength(50);
         });
 
         modelBuilder.Entity<Ticket>(entity =>
         {
-            entity.HasKey(e => e.TicketId).HasName("PK__Tickets__712CC607D753549B");
-
+            entity.HasKey(e => e.TicketId);
+            entity.Property(e => e.ClientName).HasMaxLength(255);
             entity.Property(e => e.Status).HasMaxLength(50);
-            entity.Property(e => e.TicketNumber)
-                .HasMaxLength(10)
-                .IsUnicode(false);
-
+            entity.Property(e => e.TicketNumber).HasMaxLength(10);
             entity.HasOne(d => d.Employee).WithMany(p => p.Tickets)
-                .HasForeignKey(d => d.EmployeeId)
-                .HasConstraintName("FK__Tickets__Employe__45F365D3");
-
+                .HasForeignKey(d => d.EmployeeId);
             entity.HasOne(d => d.Service).WithMany(p => p.Tickets)
-                .HasForeignKey(d => d.ServiceId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Tickets__Service__44FF419A");
-
+                .HasForeignKey(d => d.ServiceId);
             entity.HasOne(d => d.Window).WithMany(p => p.Tickets)
-                .HasForeignKey(d => d.WindowId)
-                .HasConstraintName("FK__Tickets__WindowI__46E78A0C");
+                .HasForeignKey(d => d.WindowId);
         });
 
         OnModelCreatingPartial(modelBuilder);
