@@ -62,7 +62,7 @@ public partial class Mfc111Context : DbContext
         modelBuilder.Entity<Service>(entity =>
         {
             entity.HasKey(e => e.ServiceId);
-            entity.Property(e => e.ApplicantType).HasMaxLength(50).HasDefaultValue("Physical");
+            entity.Property(e => e.TargetType).HasMaxLength(50).HasDefaultValue("Physical");
             entity.Property(e => e.ServiceGroup).HasMaxLength(100);
             entity.Property(e => e.ServiceName).HasMaxLength(255);
         });
