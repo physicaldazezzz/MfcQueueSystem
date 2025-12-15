@@ -1,0 +1,135 @@
+﻿/* Общие переменные для цветов */
+:root {
+    --primary: #3F51B5;
+    --primary-dark: #303F9F;
+    --bg-color: #F5F7FA;
+    --card-bg: #ffffff;
+    --text-color: #333;
+    --button-radius: 50px;
+}
+
+/* Общие стили для всего сайта */
+body {
+    background-color: var(--bg-color);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+}
+
+/* Заголовки */
+h1, h2, h3 {
+    font-weight: bold;
+    color: var(--primary);
+}
+
+/* Анимация появления элементов */
+.fade-in {
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Стили для навигации */
+.navbar-nav .nav-link {
+    color: #0077cc;
+}
+
+    .navbar-nav .nav-link:hover {
+        color: var(--primary-dark);
+    }
+
+/* Карточки для услуг */
+.service-card {
+    background: var(--card-bg);
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    height: 100%;
+    overflow: hidden;
+}
+
+    .service-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(63, 81, 181, 0.2);
+    }
+
+.card-border-left {
+    border-left: 5px solid var(--primary);
+}
+
+/* Кнопки с эффектами */
+.btn-primary {
+    display: inline-block;
+    text-align: center;
+    padding: 10px 30px;
+    background-color: var(--primary);
+    color: white;
+    border-radius: var(--button-radius);
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+    .btn-primary:hover {
+        background-color: var(--primary-dark);
+        transform: translateY(-5px);
+    }
+
+    .btn-primary:active {
+        transform: translateY(2px);
+    }
+
+/* Стили для футера */
+.footer {
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    background-color: #f8f9fa;
+    text-align: center;
+    padding: 10px 0;
+    color: #6c757d;
+}
+
+/* Форма с улучшенным дизайном */
+.booking-form-container {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: auto;
+}
+
+.form-control {
+    border-radius: 10px;
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.2rem rgba(63, 81, 181, 0.25);
+    }
+
+/* Стилизация ссылок */
+.text-muted {
+    color: #6c757d;
+}
+
+    .text-muted:hover {
+        text-decoration: underline;
+    }

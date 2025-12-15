@@ -5,19 +5,18 @@
         Background="{StaticResource BackgroundColor}">
 
     <Grid>
-        <!-- 1. ЭКРАН ВЫБОРА (КТО ВЫ?) -->
+        <!-- 1. ЭКРАН ВЫБОРА -->
         <Grid x:Name="StartScreenGrid" Background="#F5F7FA" Visibility="Visible">
-            <!-- Кнопки языка -->
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="20">
-                <Button Content="RU" Click="LangRu_Click" Width="50" Height="30" Margin="5" Background="White" FontWeight="Bold" BorderThickness="0" Cursor="Hand"/>
-                <Button Content="EN" Click="LangEn_Click" Width="50" Height="30" Margin="5" Background="White" FontWeight="Bold" BorderThickness="0" Cursor="Hand"/>
+                <Button Content="RU" Click="LangRu_Click" Width="50" Height="30" Margin="5" Background="White" FontWeight="Bold" BorderThickness="0"/>
+                <Button Content="EN" Click="LangEn_Click" Width="50" Height="30" Margin="5" Background="White" FontWeight="Bold" BorderThickness="0"/>
             </StackPanel>
 
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock x:Name="TxtWhoAreYou" Text="Кто вы?" FontSize="40" FontWeight="Light" Foreground="#37474F" HorizontalAlignment="Center" Margin="0,0,0,50"/>
+                <TextBlock x:Name="TxtWhoAreYou" Text="Кто вы?" FontSize="40" FontWeight="Light" Foreground="#37474F" HorizontalAlignment="Center" Margin="0,0,0,40"/>
 
-                <StackPanel Orientation="Horizontal">
-                    <!-- Кнопка ФИЗ ЛИЦО -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <!-- Физ лицо -->
                     <Button Click="SelectPhys_Click" Margin="20" Width="300" Height="300" Cursor="Hand" Background="Transparent" BorderThickness="0">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
@@ -34,7 +33,6 @@
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
                         </Button.Template>
-
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="👤" FontSize="80" HorizontalAlignment="Center" Margin="0,0,0,20"/>
                             <TextBlock x:Name="TxtPhysTitle" Text="Физическое лицо" FontSize="24" FontWeight="Bold" Foreground="#37474F" HorizontalAlignment="Center"/>
@@ -42,7 +40,7 @@
                         </StackPanel>
                     </Button>
 
-                    <!-- Кнопка ЮР ЛИЦО -->
+                    <!-- Юр лицо -->
                     <Button Click="SelectLegal_Click" Margin="20" Width="300" Height="300" Cursor="Hand" Background="Transparent" BorderThickness="0">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
@@ -59,7 +57,6 @@
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
                         </Button.Template>
-
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="🏢" FontSize="80" HorizontalAlignment="Center" Margin="0,0,0,20"/>
                             <TextBlock x:Name="TxtLegalTitle" Text="Юридическое лицо" FontSize="24" FontWeight="Bold" Foreground="#37474F" HorizontalAlignment="Center"/>
@@ -67,10 +64,20 @@
                         </StackPanel>
                     </Button>
                 </StackPanel>
+
+                <!-- КНОПКА ЗАПИСИ -->
+                <Button Click="ActivateBooking_Click" Margin="0,30,0,0" Background="Transparent" BorderThickness="0" Cursor="Hand">
+                    <Border Background="#E8F5E9" CornerRadius="50" Padding="30,10">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📅  " FontSize="20"/>
+                            <TextBlock x:Name="TxtHaveBooking" Text="У меня есть запись по времени" FontSize="18" FontWeight="SemiBold" Foreground="#2E7D32"/>
+                        </StackPanel>
+                    </Border>
+                </Button>
             </StackPanel>
         </Grid>
 
-        <!-- 2. ОСНОВНОЙ КОНТЕНТ (Список услуг) -->
+        <!-- 2. ОСНОВНОЙ КОНТЕНТ -->
         <Grid x:Name="MainContentGrid" Visibility="Collapsed">
             <Grid.RowDefinitions>
                 <RowDefinition Height="80"/>
@@ -78,26 +85,21 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- Шапка -->
             <Border Background="White">
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="10" Opacity="0.1" Direction="270"/>
                 </Border.Effect>
                 <Grid Margin="20,0">
-                    <!-- ИЗМЕНЕНИЕ ЗДЕСЬ: Добавлено HorizontalAlignment="Center" -->
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                         <Border Background="{StaticResource PrimaryColor}" Width="40" Height="40" CornerRadius="8">
                             <TextBlock Text="MFC" Foreground="White" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                         </Border>
                         <TextBlock x:Name="TxtMainHeader" Text="ЗАПИСЬ НА ПРИЕМ" VerticalAlignment="Center" FontSize="20" FontWeight="Bold" Foreground="#37474F" Margin="15,0,0,0"/>
                     </StackPanel>
-
-                    <!-- Часы остаются справа -->
                     <TextBlock x:Name="ClockText" Text="12:00" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="24" Foreground="Gray"/>
                 </Grid>
             </Border>
 
-            <!-- Поиск и фильтры -->
             <StackPanel Grid.Row="1" Margin="20,20,20,0">
                 <Border Background="White" CornerRadius="20" Height="50" Width="600" HorizontalAlignment="Center">
                     <Border.Effect>
@@ -141,7 +143,6 @@
                 </ScrollViewer>
             </StackPanel>
 
-            <!-- Список услуг -->
             <ScrollViewer Grid.Row="2" Margin="0,20">
                 <StackPanel HorizontalAlignment="Center">
                     <ItemsControl x:Name="ServicesList">
@@ -178,7 +179,6 @@
                 </StackPanel>
             </ScrollViewer>
 
-            <!-- Кнопка Назад -->
             <Button Click="BackToStart_Click" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,25,0,0" Background="Transparent" BorderThickness="0" Cursor="Hand">
                 <TextBlock x:Name="TxtBackBtn" Text="🡠 Назад" Foreground="#37474F" FontSize="14" FontWeight="Bold"/>
             </Button>
@@ -189,13 +189,10 @@
             <Border Background="White" Width="500" Height="450" CornerRadius="15" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="30">
                 <StackPanel>
                     <TextBlock x:Name="TxtRegTitle" Text="Регистрация в очереди" FontSize="22" FontWeight="Bold" Foreground="{StaticResource PrimaryColor}" Margin="0,0,0,20"/>
-
                     <TextBlock x:Name="TxtRegNameLabel" Text="Введите ваше ФИО:" Foreground="Gray" Margin="0,0,0,5"/>
                     <TextBox x:Name="InputName" Height="40" FontSize="16" Padding="5" BorderBrush="#B0BEC5"/>
-
                     <TextBlock x:Name="TxtRegCatLabel" Text="Категория:" Foreground="Gray" Margin="0,20,0,5"/>
                     <CheckBox x:Name="CheckBenefit" Content="У меня есть льготы" FontSize="16" Margin="0,5"/>
-
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,30,0,0">
                         <Button x:Name="BtnRegCancel" Content="Отмена" Click="CancelReg_Click" Background="#E0E0E0" Foreground="Black" Style="{StaticResource ModernBtn}" Width="100" Margin="0,0,10,0"/>
                         <Button x:Name="BtnRegConfirm" Content="ПОЛУЧИТЬ ТАЛОН" Click="ConfirmReg_Click" Style="{StaticResource ModernBtn}" Width="180"/>
@@ -204,7 +201,22 @@
             </Border>
         </Grid>
 
-        <!-- 4. POPUP ТАЛОН (ДЛЯ ПЕЧАТИ) -->
+        <!-- 4. POPUP АКТИВАЦИЯ ЗАПИСИ -->
+        <Grid x:Name="BookingPopup" Grid.RowSpan="3" Background="#99000000" Visibility="Collapsed">
+            <Border Background="White" Width="400" Height="300" CornerRadius="15" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="30">
+                <StackPanel>
+                    <TextBlock x:Name="TxtBookingTitle" Text="Активация записи" FontSize="22" FontWeight="Bold" Foreground="#2E7D32" Margin="0,0,0,20" HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="TxtBookingLabel" Text="Введите код:" Foreground="Gray" Margin="0,0,0,5" HorizontalAlignment="Center"/>
+                    <TextBox x:Name="BookingCodeInput" Height="60" FontSize="36" FontWeight="Bold" HorizontalContentAlignment="Center" MaxLength="4" BorderBrush="#2E7D32" BorderThickness="2" Margin="0,10"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
+                        <Button x:Name="BtnBookingCancel" Content="Отмена" Click="CancelBooking_Click" Background="#E0E0E0" Foreground="Black" Style="{StaticResource ModernBtn}" Width="100" Margin="0,0,10,0"/>
+                        <Button x:Name="BtnBookingConfirm" Content="АКТИВИРОВАТЬ" Click="ConfirmBooking_Click" Style="{StaticResource ModernBtn}" Background="#2E7D32" Width="180"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- 5. POPUP ТАЛОН -->
         <Grid x:Name="TicketPopup" Grid.RowSpan="3" Background="#CCFFFFFF" Visibility="Collapsed">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <Border x:Name="TicketCard" Background="White" Width="320" Padding="20" Margin="20">

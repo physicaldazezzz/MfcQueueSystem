@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace MfcQueueSystem.Models
+namespace MfcWeb.Models
 {
     public partial class Ticket
     {
@@ -15,14 +15,13 @@ namespace MfcQueueSystem.Models
         public string Status { get; set; } = null!;
         public int? EmployeeId { get; set; }
         public int? WindowId { get; set; }
+
+        // Поля, которые мы добавляли
         public string? ClientName { get; set; }
         public int Priority { get; set; }
-
-        // --- НОВЫЕ ПОЛЯ ---
         public DateTime? AppointmentTime { get; set; }
         public string? BookingCode { get; set; }
         public string? PhoneNumber { get; set; }
-        // ------------------
 
         public virtual Employee? Employee { get; set; }
         public virtual ICollection<QueueLog> QueueLogs { get; set; } = new List<QueueLog>();
