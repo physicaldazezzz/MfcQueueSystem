@@ -10,6 +10,14 @@ using MfcQueueSystem.Models;
 
 namespace MfcQueueSystem
 {
+    // Модель категории льготы
+    public class BenefitCategory
+    {
+        public string NameRu { get; set; } = "";
+        public string NameEn { get; set; } = "";
+        public int Priority { get; set; }
+    }
+
     public partial class TerminalWindow : Window
     {
         private DispatcherTimer? _timer;
@@ -19,27 +27,203 @@ namespace MfcQueueSystem
         private string _currentLang = "RU";
         private int _tempServiceId;
 
-        private readonly Dictionary<string, string> _translations = new Dictionary<string, string>
+        // Список льгот
+        private readonly List<BenefitCategory> _benefits = new List<BenefitCategory>
         {
-            // Groups
-            { "Паспортный стол", "Passport Office" },
-            { "Росреестр", "Property Registration" },
-            { "Налоги", "Taxes" },
-            { "Социальные услуги", "Social Services" },
-            { "Бизнес", "Business" },
-            { "Прочее", "Other" },
+            new BenefitCategory { NameRu = "Нет льгот", NameEn = "No benefits", Priority = 1 },
+            // Федеральные (High Priority)
+            new BenefitCategory { NameRu = "Участники СВО и члены семей", NameEn = "SVO Participants & Families", Priority = 15 },
+            new BenefitCategory { NameRu = "Ветераны ВОВ, Инвалиды", NameEn = "WW2 Veterans, Disabled", Priority = 15 },
+            new BenefitCategory { NameRu = "Герои России/СССР", NameEn = "Heroes of Russia/USSR", Priority = 15 },
+            new BenefitCategory { NameRu = "Инвалиды I и II групп", NameEn = "Disabled Group I & II", Priority = 15 },
+            new BenefitCategory { NameRu = "Дети-инвалиды", NameEn = "Disabled Children", Priority = 15 },
+            new BenefitCategory { NameRu = "Жители блокадного Ленинграда", NameEn = "Siege of Leningrad Survivors", Priority = 15 },
+            // Другие
+            new BenefitCategory { NameRu = "Пенсионеры", NameEn = "Pensioners", Priority = 3 },
+            new BenefitCategory { NameRu = "Многодетные семьи", NameEn = "Large Families", Priority = 5 }
+        };
 
-            // Services (Examples)
-            { "Получение паспорта РФ", "Get Russian Passport" },
-            { "Загранпаспорт", "International Passport" },
-            { "Регистрация права собственности", "Property Rights Registration" },
-            { "Выписка из ЕГРН", "EGRN Extract" },
-            { "ИНН", "Tax ID (INN)" },
-            { "Регистрация ИП", "Sole Proprietor Registration" },
-            { "Детские пособия", "Child Benefits" },
-            { "СНИЛС", "SNILS Insurance" },
-            { "Водительское удостоверение", "Driver's License" },
-            { "Справка об отсутствии судимости", "Criminal Record Certificate" }
+        private readonly Dictionary<string, string> _translations = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+             // --- КАТЕГОРИИ (ServiceGroup) ---
+             {"Паспорта", "Passports"},
+             {"Регистрация", "Registration"},
+             {"Миграция", "Migration"},
+             {"Транспорт", "Transport"},
+             {"Транспорт Бизнес", "Transport (Business)"},
+             {"ЗАГС", "Civil Registry (ZAGS)"},
+             {"Образование", "Education"},
+             {"Семья", "Family"},
+             {"Пособия", "Benefits"},
+             {"Недвижимость", "Real Estate"},
+             {"Земля", "Land"},
+             {"Жилье", "Housing"},
+             {"Строительство", "Construction"},
+             {"Пенсионный", "Pension Fund"},
+             {"Соцзащита", "Social Protection"},
+             {"ЖКХ", "Utilities (Housing)"},
+             {"Налоги", "Taxes"},
+             {"Налоги Бизнес", "Taxes (Business)"},
+             {"Регистрация Бизнеса", "Business Registration"},
+             {"Реестры", "Registries (EGRUL/EGRIP)"},
+             {"Бизнес Старт", "Business Start"},
+             {"Лицензирование", "Licensing"},
+             {"Поддержка МСП", "SME Support"},
+             {"Справки МВД", "Police Certificates"},
+             {"Архив", "Archive"},
+             {"Справки", "Certificates"},
+             {"Природа", "Nature & Hunting"},
+             {"Цифра", "Digital Services"},
+             {"Банкротство", "Bankruptcy"},
+             {"Здравоохранение", "Healthcare"},
+
+             // --- УСЛУГИ (ServiceName) ---
+             // Паспорта
+             {"Выдача/замена паспорта РФ (по возрасту)", "Issue/replacement of RF passport (by age)"},
+             {"Выдача/замена паспорта РФ (утеря/хищение)", "Issue/replacement of RF passport (lost/stolen)"},
+             {"Выдача/замена паспорта РФ (смена ФИО)", "Issue/replacement of RF passport (name change)"},
+             {"Загранпаспорт старого образца (5 лет) - взрослым", "International passport (5 years) - adults"},
+             {"Загранпаспорт старого образца (5 лет) - детям", "International passport (5 years) - children"},
+             {"Загранпаспорт нового образца (10 лет, биометрия)", "Biometric international passport (10 years)"},
+             
+             // Регистрация
+             {"Регистрация по месту жительства (прописка)", "Permanent residence registration"},
+             {"Снятие с регистрационного учета", "Deregistration of residence"},
+             {"Регистрация по месту пребывания (временная)", "Temporary residence registration"},
+             {"Миграционный учет иностранных граждан", "Migration registration of foreigners"},
+             {"Вид на жительство (прием заявлений)", "Residence permit application"},
+             {"Разрешение на временное проживание (РВП)", "Temporary residence permit (RVP)"},
+
+             // Транспорт
+             {"Замена водительского удостоверения (национального)", "Driver's license replacement (National)"},
+             {"Получение международного ВУ", "International driving permit"},
+             {"Карта водителя для тахографа (РФ)", "Tachograph driver card (RF)"},
+             {"Карта водителя для тахографа (ЕСТР)", "Tachograph driver card (ESTR)"},
+             {"Парковочное разрешение резидента", "Resident parking permit"},
+             {"Парковочное разрешение инвалида", "Disabled parking permit"},
+             {"Парковочное разрешение многодетной семьи", "Large family parking permit"},
+             {"Разрешение на возврат ТС со штрафстоянки", "Vehicle release form (impound lot)"},
+             {"Выдача разрешения на такси", "Taxi permit issuance"},
+             {"Аннулирование разрешения на такси", "Taxi permit cancellation"},
+             {"Спецразрешение на тяжеловесные грузы", "Heavy cargo special permit"},
+             {"Разрешение на перевозку опасных грузов", "Dangerous goods transport permit"},
+
+             // Семья и ЗАГС
+             {"Регистрация рождения", "Birth registration"},
+             {"Регистрация расторжения брака", "Divorce registration"},
+             {"Регистрация смерти", "Death registration"},
+             {"Выдача повторного свидетельства о рождении", "Duplicate birth certificate"},
+             {"Выдача повторного свидетельства о браке", "Duplicate marriage certificate"},
+             {"Установление отцовства", "Establishment of paternity"},
+             {"Запись в детский сад", "Kindergarten enrollment"},
+             {"Запись в первый класс", "School enrollment (1st grade)"},
+             {"Запись в кружки и секции", "Enrollment in clubs/sections"},
+             {"Оформление сертификата на материнский капитал", "Maternity capital certificate"},
+             {"Распоряжение мат. капиталом (ипотека)", "Maternity capital use (Mortgage)"},
+             {"Распоряжение мат. капиталом (образование)", "Maternity capital use (Education)"},
+             {"Распоряжение мат. капиталом (выплата)", "Maternity capital use (Payout)"},
+             {"Единовременное пособие при рождении ребенка", "Lump-sum birth allowance"},
+             {"Ежемесячное пособие по уходу за ребенком до 1.5 лет", "Monthly child care allowance (up to 1.5 yrs)"},
+             {"Выплаты на детей от 3 до 7 лет", "Child payments (3 to 7 years)"},
+             {"Удостоверение многодетной семьи", "Large family certificate"},
+             {"Предоставление земельных участков многодетным", "Land plot for large families"},
+
+             // Недвижимость
+             {"Регистрация права собственности (купля-продажа)", "Property registration (Sale)"},
+             {"Регистрация права собственности (дарение)", "Property registration (Gift)"},
+             {"Регистрация права собственности (наследство)", "Property registration (Inheritance)"},
+             {"Регистрация ипотеки", "Mortgage registration"},
+             {"Погашение регистрационной записи об ипотеке", "Mortgage record cancellation"},
+             {"Постановка на кадастровый учет", "Cadastral registration"},
+             {"Единая процедура (учет + регистрация)", "Unified procedure (Accounting + Reg)"},
+             {"Предоставление сведений из ЕГРН (Об объекте)", "EGRN Extract (Object info)"},
+             {"Предоставление сведений из ЕГРН (О правах)", "EGRN Extract (Rights info)"},
+             {"Предоставление сведений из ЕГРН (Кадастровый план)", "EGRN Extract (Cadastral plan)"},
+             {"Исправление технической ошибки в ЕГРН", "EGRN technical error correction"},
+             {"Дачная амнистия (регистрация дома)", "Dacha amnesty (House registration)"},
+             {"Отказ от права собственности на землю", "Land ownership renunciation"},
+
+             // Пенсии и Соцзащита
+             {"Оформление СНИЛС (АДИ-РЕГ)", "SNILS Registration"},
+             {"Замена СНИЛС (смена фамилии)", "SNILS Replacement (Name change)"},
+             {"Назначение страховой пенсии по старости", "Old-age insurance pension"},
+             {"Перерасчет пенсии", "Pension recalculation"},
+             {"Смена способа доставки пенсии (карта/почта)", "Change pension delivery method"},
+             {"Справка о размере пенсии", "Pension amount certificate"},
+             {"Установление статуса предпенсионера", "Pre-pensioner status"},
+             {"Оформление инвалидности (прием документов)", "Disability registration"},
+             {"Обеспечение средствами реабилитации", "Rehabilitation means provision"},
+             {"Санаторно-курортное лечение (путевки)", "Sanatorium treatment vouchers"},
+             {"Бесплатный проезд к месту лечения", "Free travel to treatment place"},
+             {"Звание \"Ветеран труда\"", "Veteran of Labour title"},
+             {"Социальная карта жителя (оформление)", "Social resident card"},
+             {"Субсидии на оплату ЖКУ", "Housing utility subsidies"},
+             {"Компенсация расходов по ЖКУ (льготники)", "Housing utility compensation"},
+
+             // Налоги
+             {"Постановка на учет (ИНН)", "Tax ID (INN) registration"},
+             {"Прием декларации 3-НДФЛ", "3-NDFL Declaration submission"},
+             {"Заявление на льготу по трансп./зем./имущ. налогу", "Tax relief application"},
+             {"Доступ к Личному кабинету налогоплательщика", "Taxpayer account access"},
+             {"Справка об исполнении обязанностей (долги)", "Tax debt certificate"},
+             {"Регистрация ККТ (кассовой техники)", "Cash register registration"},
+             {"Выдача дубликата ИНН", "Duplicate INN"},
+
+             // Бизнес
+             {"Регистрация физического лица как ИП", "Sole Proprietor Registration"},
+             {"Регистрация создания Юридического Лица (ООО)", "LLC Registration"},
+             {"Прекращение деятельности ИП", "Sole Proprietor Termination"},
+             {"Ликвидация Юридического Лица", "LLC Liquidation"},
+             {"Внесение изменений в ЕГРИП (ОКВЭД и пр.)", "Changes to EGRIP"},
+             {"Внесение изменений в ЕГРЮЛ (Устав, Директор)", "Changes to EGRUL"},
+             {"Выписка из ЕГРЮЛ/ЕГРИП", "Extract from EGRUL/EGRIP"},
+             {"Подача уведомления о начале деятельности (Роспотребнадзор)", "Notice of business start"},
+             {"Лицензия на розничную продажу алкоголя", "Alcohol retail license"},
+             {"Лицензия на заготовку лома металлов", "Scrap metal license"},
+             {"Лицензия на фармацевтическую деятельность", "Pharmaceutical license"},
+             {"Лицензия на образовательную деятельность", "Educational activity license"},
+             {"Субсидии для МСП (консультация)", "SME Subsidies consultation"},
+             {"Регистрация в системе \"Честный знак\"", "Chestny ZNAK registration"},
+             {"Открытие расчетного счета (партнеры)", "Bank account opening"},
+
+             // Строительство и Земля
+             {"Градостроительный план земельного участка (ГПЗУ)", "Urban development plan (GPZU)"},
+             {"Разрешение на строительство (ИЖС)", "Construction permit (Individual)"},
+             {"Уведомление о планируемом строительстве", "Construction notice"},
+             {"Уведомление об окончании строительства", "Construction completion notice"},
+             {"Присвоение адреса объекту", "Address assignment"},
+             {"Перевод жилого помещения в нежилое", "Residential to non-residential conversion"},
+             {"Согласование перепланировки", "Redevelopment approval"},
+             {"Оформление прав на садовый дом (Амнистия)", "Garden house rights"},
+             {"Утверждение схемы расположения ЗУ на кадастровом плане", "Land plot layout approval"},
+             {"Предоставление земельного участка в аренду (торги)", "Land lease (Auction)"},
+             {"Предоставление земельного участка без торгов", "Land lease (No auction)"},
+             {"Изменение вида разрешенного использования ЗУ", "Change of land use type"},
+
+             // Справки и Архив
+             {"Справка о наличии/отсутствии судимости", "Criminal record certificate"},
+             {"Справка об административных наказаниях (наркотики)", "Drug offense certificate"},
+             {"Архивная справка о трудовом стаже", "Archival work history certificate"},
+             {"Архивная справка о зарплате", "Archival salary certificate"},
+             {"Архивная копия постановления администрации", "Archival decree copy"},
+             {"Справка о составе семьи (выписка из домовой)", "Family composition certificate"},
+
+             // Природа
+             {"Выдача охотничьего билета", "Hunting ticket issuance"},
+             {"Аннулирование охотничьего билета", "Hunting ticket cancellation"},
+             {"Разрешение на добычу охотничьих ресурсов", "Hunting permit"},
+             {"Лесная декларация (прием)", "Forest declaration"},
+             {"Отчет об использовании лесов", "Forest usage report"},
+
+             // Цифра и прочее
+             {"Регистрация учетной записи ЕСИА (Госуслуги)", "Gosuslugi registration"},
+             {"Подтверждение личности для ЕСИА", "Gosuslugi identity verification"},
+             {"Восстановление доступа к ЕСИА", "Gosuslugi access recovery"},
+             {"Распечатка QR-кода о вакцинации", "Vaccination QR-code printout"},
+             {"Консультация по банкротству физлиц (внесудебное)", "Bankruptcy consultation"},
+             {"Прием заявления о банкротстве физлица", "Bankruptcy application"},
+             {"Запись на прием к врачу", "Doctor appointment"},
+             {"Полис ОМС (оформление/замена)", "OMS Policy (Health insurance)"}
         };
 
         public TerminalWindow()
@@ -47,6 +231,10 @@ namespace MfcQueueSystem
             InitializeComponent();
             StartClock();
             LoadServicesToMemory();
+            
+            ComboBenefits.DisplayMemberPath = "Name";
+            ComboBenefits.SelectedValuePath = "Priority";
+            
             SetLanguage("RU");
         }
 
@@ -70,13 +258,31 @@ namespace MfcQueueSystem
         private string Translate(string text)
         {
             if (_currentLang == "RU") return text;
-            return _translations.ContainsKey(text) ? _translations[text] : text;
+            if (string.IsNullOrEmpty(text)) return "";
+            
+            // Try exact match first
+            if (_translations.ContainsKey(text)) return _translations[text];
+            
+            // Fallback: if not found, maybe split words or return original? 
+            // For now, return original if not in dictionary to avoid confusion.
+            return text;
         }
 
         private void SetLanguage(string lang)
         {
             _currentLang = lang;
             bool isEn = lang == "EN";
+
+            // Обновляем список льгот в ComboBox
+            var displayBenefits = _benefits.Select(b => new 
+            { 
+                Name = isEn ? b.NameEn : b.NameRu, 
+                Priority = b.Priority 
+            }).ToList();
+            
+            int selectedIdx = ComboBenefits.SelectedIndex;
+            ComboBenefits.ItemsSource = displayBenefits;
+            ComboBenefits.SelectedIndex = selectedIdx >= 0 ? selectedIdx : 0;
 
             if (lang == "RU")
             {
@@ -150,6 +356,11 @@ namespace MfcQueueSystem
             using (var db = new Mfc111Context())
             {
                 // Ищем талон с таким кодом, который "Забронирован" и на СЕГОДНЯ
+                // ВАЖНО: Проверяем, что человек пришел в интервале [Время записи - 10 минут, Время записи + 10 минут]
+                // Или просто "не просрочил более чем на 10 минут"
+                
+                var now = DateTime.Now;
+                
                 var ticket = db.Tickets
                     .Include(t => t.Service)
                     .FirstOrDefault(t => t.BookingCode == code &&
@@ -171,8 +382,31 @@ namespace MfcQueueSystem
                     return;
                 }
 
+                // Проверка времени: можно активировать только в интервале [Время - 30 мин ... Время + 10 мин]
+                // Если опоздал больше чем на 10 минут -> бронь сгорает
+                var appTime = ticket.AppointmentTime.Value;
+                if (now > appTime.AddMinutes(10))
+                {
+                    // Просрочено -> Удаляем или меняем статус на "Missed"
+                    ticket.Status = "Missed";
+                    db.SaveChanges();
+                    
+                    MessageBox.Show(_currentLang == "EN" 
+                        ? "Booking expired (more than 10 min late)." 
+                        : "Ваша бронь сгорела (опоздание более 10 мин). Возьмите обычный талон.");
+                    return;
+                }
+                
+                // Если пришел слишком рано (более чем за 10 минут)
+                if (now < appTime.AddMinutes(-10))
+                {
+                     MessageBox.Show(_currentLang == "EN" 
+                        ? "Too early! Activation available 10 mins before." 
+                        : "Слишком рано! Активация доступна за 10 минут до приема.");
+                     return;
+                }
+
                 // АКТИВАЦИЯ
-                // Генерируем нормальный номер (П-00X)
                 string prefix = ticket.Service.ServiceName.Substring(0, 1).ToUpper();
                 int countToday = db.Tickets.Count(t => t.TimeCreated.Date == DateTime.Today && t.Status != "Booked") + 1;
                 ticket.TicketNumber = $"{prefix}-{countToday:D3}";
@@ -188,6 +422,8 @@ namespace MfcQueueSystem
                 BookingPopup.Visibility = Visibility.Collapsed;
             }
         }
+        
+        // ... (Остальной код без изменений) ...
 
         // --- ЛОГИКА ОБЫЧНОЙ ВЫДАЧИ ---
         private void SelectPhys_Click(object sender, RoutedEventArgs e) { _targetType = "PHYS"; ShowServices(); }
@@ -274,10 +510,9 @@ namespace MfcQueueSystem
                 
                 // Получаем приоритет из ComboBox
                 int priority = 1; // Default
-                if (ComboBenefits.SelectedItem is ComboBoxItem item && item.Tag != null)
+                if (ComboBenefits.SelectedValue is int p)
                 {
-                    int.TryParse(item.Tag.ToString(), out priority);
-                    if (priority == 0) priority = 1;
+                    priority = p;
                 }
 
                 var t = new Ticket

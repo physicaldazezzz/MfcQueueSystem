@@ -193,11 +193,7 @@
                     <TextBox x:Name="InputName" Height="40" FontSize="16" Padding="5" BorderBrush="#B0BEC5"/>
                     <TextBlock x:Name="TxtRegCatLabel" Text="Категория:" Foreground="Gray" Margin="0,20,0,5"/>
                     <ComboBox x:Name="ComboBenefits" Height="40" FontSize="14" Margin="0,5">
-                        <ComboBoxItem Content="Нет льгот / No benefits" Tag="0" IsSelected="True"/>
-                        <ComboBoxItem Content="Ветеран ВОВ / WW2 Veteran" Tag="10"/>
-                        <ComboBoxItem Content="Инвалид I, II группы / Disabled person" Tag="8"/>
-                        <ComboBoxItem Content="Многодетная семья / Large family" Tag="5"/>
-                        <ComboBoxItem Content="Пенсионер / Pensioner" Tag="3"/>
+                        <!-- Items populated from code -->
                     </ComboBox>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,30,0,0">
                         <Button x:Name="BtnRegCancel" Content="Отмена" Click="CancelReg_Click" Background="#E0E0E0" Foreground="Black" Style="{StaticResource ModernBtn}" Width="100" Margin="0,0,10,0"/>

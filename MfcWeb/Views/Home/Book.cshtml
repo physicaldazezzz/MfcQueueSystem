@@ -15,9 +15,11 @@
                 <div class="alert alert-danger">@ViewBag.Error</div>
         }
 
-        <form method="post">
+        <form method="post" id="bookingForm">
             <input type="hidden" name="serviceId" value="@Model.ServiceId" />
+            <input type="hidden" name="time" id="selectedTime" required />
 
+            <!-- Шаг 1: Контакты -->
             <div class="mb-3">
                 <label class="form-label text-muted small">ФИО ЗАЯВИТЕЛЯ</label>
                 <input type="text" name="fio" class="form-control" placeholder="Иванов Иван Иванович" required />
@@ -28,18 +30,21 @@
                 <input type="tel" name="phone" class="form-control" placeholder="+7 (999) 000-00-00" required />
             </div>
 
-            <div class="row">
-                <div class="col-6 mb-3">
-                    <label class="form-label text-muted small">ДАТА</label>
-                    <input type="date" name="date" class="form-control" required />
-                </div>
-                <div class="col-6 mb-3">
-                    <label class="form-label text-muted small">ВРЕМЯ</label>
-                    <input type="time" name="time" class="form-control" min="09:00" max="18:00" required />
+            <!-- Шаг 2: Выбор даты -->
+            <div class="mb-3">
+                <label class="form-label text-muted small">ДАТА ПРИЕМА</label>
+                <input type="date" name="date" id="datePicker" class="form-control" required value="@DateTime.Today.ToString("yyyy-MM-dd")" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+            </div>
+
+            <!-- Шаг 3: Слоты времени -->
+            <div class="mb-3">
+                <label class="form-label text-muted small">ВРЕМЯ ПРИЕМА</label>
+                <div id="slotsContainer" class="d-flex flex-wrap gap-2 justify-content-center p-3 bg-light rounded-3" style="min-height: 100px;">
+                    <span class="text-muted align-self-center">Загрузка слотов...</span>
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary-mfc w-100 mt-4 py-3 shadow">
+            <button type="submit" class="btn btn-primary-mfc w-100 mt-4 py-3 shadow" id="submitBtn" disabled>
                 ПОДТВЕРДИТЬ ЗАПИСЬ
             </button>
 
@@ -49,3 +54,72 @@
         </form>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            var serviceId = @Model.ServiceId;
+            var $datePicker = $('#datePicker');
+            var $slotsContainer = $('#slotsContainer');
+            var $timeInput = $('#selectedTime');
+            var $submitBtn = $('#submitBtn');
+
+            function loadSlots() {
+                var date = $datePicker.val();
+                if (!date) return;
+
+                $slotsContainer.html('<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>');
+                $timeInput.val('');
+                $submitBtn.prop('disabled', true);
+
+                $.get('/Home/GetTimeSlots?serviceId=' + serviceId + '&date=' + date, function(data) {
+                    $slotsContainer.empty();
+                    
+                    if (data.length === 0) {
+                        $slotsContainer.html('<span class="text-muted">Нет доступных слотов на этот день</span>');
+                        return;
+                    }
+
+                    data.forEach(function(slot) {
+                        var btnClass = slot.isAvailable ? 'btn-outline-primary' : 'btn-light text-muted border-0';
+                        var disabledAttr = slot.isAvailable ? '' : 'disabled';
+                        var clickHandler = slot.isAvailable ? 'onclick="selectSlot(this, \'' + slot.time + '\')"' : '';
+                        
+                        // Если слот занят или прошел - меняем стиль
+                        if (!slot.isAvailable) {
+                            if (slot.isBusy) {
+                                // Занят кем-то
+                                btnClass = 'btn-secondary opacity-50 text-decoration-line-through'; 
+                            } else if (slot.isPast) {
+                                // Прошло время
+                                btnClass = 'btn-light text-muted';
+                            }
+                        }
+
+                        var btn = `<button type="button" class="btn ${btnClass} m-1 slot-btn" ${disabledAttr} ${clickHandler} style="width: 80px;">${slot.time}</button>`;
+                        $slotsContainer.append(btn);
+                    });
+                });
+            }
+
+            // Загрузить слоты при загрузке страницы
+            loadSlots();
+
+            // При изменении даты
+            $datePicker.change(loadSlots);
+
+            // Глобальная функция выбора слота (чтобы работала из HTML строки)
+            window.selectSlot = function(btn, time) {
+                // Снять выделение со всех
+                $('.slot-btn').removeClass('active btn-primary text-white').addClass('btn-outline-primary');
+                
+                // Выделить текущий
+                $(btn).removeClass('btn-outline-primary').addClass('active btn-primary text-white');
+                
+                // Записать значение
+                $timeInput.val(time);
+                $submitBtn.prop('disabled', false);
+            };
+        });
+    </script>
+}
