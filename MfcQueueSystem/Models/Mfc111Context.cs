@@ -33,7 +33,10 @@ public partial class Mfc111Context : DbContext
             entity.HasKey(e => e.EmployeeId);
             entity.Property(e => e.FullName).HasMaxLength(255);
             entity.Property(e => e.Login).HasMaxLength(50);
-            entity.Property(e => e.Password).HasMaxLength(50); // Пароль
+
+            // ЭТА СТРОКА ДОЛЖНА БЫТЬ, ЧТОБЫ СВЯЗАТЬСЯ С БАЗОЙ
+            entity.Property(e => e.Password).HasMaxLength(50);
+
             entity.HasOne(d => d.Window).WithMany(p => p.Employees)
                 .HasForeignKey(d => d.WindowId);
         });
@@ -62,7 +65,7 @@ public partial class Mfc111Context : DbContext
         modelBuilder.Entity<Service>(entity =>
         {
             entity.HasKey(e => e.ServiceId);
-            entity.Property(e => e.ApplicantType).HasMaxLength(50).HasDefaultValue("Physical");
+            entity.Property(e => e.TargetType).HasMaxLength(50).HasDefaultValue("Physical");
             entity.Property(e => e.ServiceGroup).HasMaxLength(100);
             entity.Property(e => e.ServiceName).HasMaxLength(255);
         });

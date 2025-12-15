@@ -1,0 +1,33 @@
+﻿@model List<MfcWeb.Models.Service>
+@{
+    ViewData["Title"] = "Услуги";
+}
+
+<div class="text-center fade-in mb-5">
+    <h1 class="display-4 fw-bold text-dark">МФЦ Онлайн</h1>
+    <p class="lead text-muted">Запишитесь на прием, не выходя из дома</p>
+
+    <!-- Поиск -->
+    <form method="get" class="mt-4 d-flex justify-content-center">
+        <input type="text" name="search" class="form-control w-50 shadow-sm" placeholder="🔍 Найти услугу (например: Паспорт)...">
+        <button type="submit" class="btn btn-primary-mfc ms-2 rounded-pill">Найти</button>
+    </form>
+</div>
+
+<div class="row fade-in">
+    @foreach (var service in Model)
+    {
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="service-card card-border-left h-100 p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <span class="badge bg-light text-primary mb-2">@service.ServiceGroup</span>
+                        <h5 class="fw-bold">@service.ServiceName</h5>
+                        <p class="text-muted small">Время приема: ~@service.AvgServiceTimeMin мин.</p>
+                    </div>
+                    <a asp-action="Book" asp-route-id="@service.ServiceId" class="btn btn-outline-primary rounded-pill mt-3 w-100">
+                        Записаться ➔
+                    </a>
+                </div>
+            </div>
+    }
+</div>

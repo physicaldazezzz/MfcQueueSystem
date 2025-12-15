@@ -22,7 +22,10 @@ namespace MfcQueueSystem
 
         private void OpenEmployee_Click(object sender, RoutedEventArgs e)
         {
-            new EmployeeWindow().Show();
+         
+            LoginWindow loginWindow = new LoginWindow();
+            loginWindow.Show();
+
         }
     }
 }

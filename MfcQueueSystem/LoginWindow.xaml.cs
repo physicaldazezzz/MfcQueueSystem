@@ -4,7 +4,7 @@ using MfcQueueSystem.Models;
 
 namespace MfcQueueSystem
 {
-    // Глобальная память для сессии
+    // Глобальная память для сессии (храним ID того, кто вошел)
     public static class AppSession
     {
         public static int CurrentEmployeeId { get; set; }
@@ -19,16 +19,28 @@ namespace MfcQueueSystem
 
         private void Login_Click(object sender, RoutedEventArgs e)
         {
+            // Проверка: введены ли данные
+            if (string.IsNullOrWhiteSpace(TxtLogin.Text) || string.IsNullOrWhiteSpace(TxtPass.Password))
+            {
+                MessageBox.Show("Введите логин и пароль!");
+                return;
+            }
+
             using (var db = new Mfc111Context())
             {
+                // Ищем сотрудника в твоей готовой базе
                 var emp = db.Employees.FirstOrDefault(u => u.Login == TxtLogin.Text && u.Password == TxtPass.Password);
+
                 if (emp != null)
                 {
-                    // Сохраняем сессию
+                    // 1. Запоминаем ID сотрудника (чтобы потом знать, чье окно открывать)
                     AppSession.CurrentEmployeeId = emp.EmployeeId;
 
-                    // Открываем окно работы
-                    new EmployeeWindow().Show();
+                    // 2. Открываем рабочее окно
+                    EmployeeWindow workWindow = new EmployeeWindow();
+                    workWindow.Show();
+
+                    // 3. Закрываем окно логина
                     this.Close();
                 }
                 else

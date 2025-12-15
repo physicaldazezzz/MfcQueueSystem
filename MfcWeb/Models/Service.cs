@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace MfcQueueSystem.Models
+namespace MfcWeb.Models
 {
     public partial class Service
     {
@@ -9,7 +9,7 @@ namespace MfcQueueSystem.Models
         public string ServiceName { get; set; } = null!;
         public string ServiceGroup { get; set; } = null!;
         public int AvgServiceTimeMin { get; set; }
-        public string TargetType { get; set; } = null!; // Проверь это поле!
+        public string TargetType { get; set; } = null!;
 
         public virtual ICollection<EmployeeService> EmployeeServices { get; set; } = new List<EmployeeService>();
         public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
