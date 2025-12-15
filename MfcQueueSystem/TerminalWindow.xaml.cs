@@ -303,6 +303,7 @@ namespace MfcQueueSystem
                 if (BtnRegCancel != null) BtnRegCancel.Content = "Отмена";
                 if (BtnRegConfirm != null) BtnRegConfirm.Content = "ПОЛУЧИТЬ ТАЛОН";
                 if (BtnBookingCancel != null) BtnBookingCancel.Content = "Отмена";
+                if (TxtTicketHeader != null) TxtTicketHeader.Text = "МФЦ МОИ ДОКУМЕНТЫ";
                 if (TxtTicketTitle != null) TxtTicketTitle.Text = "ВАШ ТАЛОН";
                 if (TxtTicketAhead != null) TxtTicketAhead.Text = "Перед вами:";
                 if (BtnTicketClose != null) BtnTicketClose.Content = "Закрыть";
@@ -327,6 +328,7 @@ namespace MfcQueueSystem
                 if (BtnRegCancel != null) BtnRegCancel.Content = "Cancel";
                 if (BtnRegConfirm != null) BtnRegConfirm.Content = "GET TICKET";
                 if (BtnBookingCancel != null) BtnBookingCancel.Content = "Cancel";
+                if (TxtTicketHeader != null) TxtTicketHeader.Text = "MFC / MY DOCUMENTS";
                 if (TxtTicketTitle != null) TxtTicketTitle.Text = "YOUR TICKET";
                 if (TxtTicketAhead != null) TxtTicketAhead.Text = "People ahead:";
                 if (BtnTicketClose != null) BtnTicketClose.Content = "Close";
