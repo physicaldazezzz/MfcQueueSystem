@@ -19,9 +19,28 @@ namespace MfcQueueSystem
         private string _currentLang = "RU";
         private int _tempServiceId;
 
-        // СЛОВАРЬ (Сократил для примера, твой большой словарь останется работать, если он был)
-        // ... (Сюда вставь свой большой словарь из прошлого шага, если хочешь перевод) ...
-        private readonly Dictionary<string, string> _translations = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> _translations = new Dictionary<string, string>
+        {
+            // Groups
+            { "Паспортный стол", "Passport Office" },
+            { "Росреестр", "Property Registration" },
+            { "Налоги", "Taxes" },
+            { "Социальные услуги", "Social Services" },
+            { "Бизнес", "Business" },
+            { "Прочее", "Other" },
+
+            // Services (Examples)
+            { "Получение паспорта РФ", "Get Russian Passport" },
+            { "Загранпаспорт", "International Passport" },
+            { "Регистрация права собственности", "Property Rights Registration" },
+            { "Выписка из ЕГРН", "EGRN Extract" },
+            { "ИНН", "Tax ID (INN)" },
+            { "Регистрация ИП", "Sole Proprietor Registration" },
+            { "Детские пособия", "Child Benefits" },
+            { "СНИЛС", "SNILS Insurance" },
+            { "Водительское удостоверение", "Driver's License" },
+            { "Справка об отсутствии судимости", "Criminal Record Certificate" }
+        };
 
         public TerminalWindow()
         {
@@ -63,23 +82,49 @@ namespace MfcQueueSystem
             {
                 if (TxtWhoAreYou != null) TxtWhoAreYou.Text = "Кто вы?";
                 if (TxtPhysTitle != null) TxtPhysTitle.Text = "Физическое лицо";
+                if (TxtPhysDesc != null) TxtPhysDesc.Text = "Личные документы, справки";
+                if (TxtLegalTitle != null) TxtLegalTitle.Text = "Юридическое лицо";
+                if (TxtLegalDesc != null) TxtLegalDesc.Text = "Бизнес, регистрация, налоги";
                 if (TxtHaveBooking != null) TxtHaveBooking.Text = "У меня есть запись по времени";
                 if (TxtBookingTitle != null) TxtBookingTitle.Text = "Активация записи";
                 if (TxtBookingLabel != null) TxtBookingLabel.Text = "Введите код из SMS/Сайта:";
                 if (BtnBookingConfirm != null) BtnBookingConfirm.Content = "АКТИВИРОВАТЬ";
-
-                // ... Остальные тексты ...
+                if (TxtMainHeader != null) TxtMainHeader.Text = "ЗАПИСЬ НА ПРИЕМ";
+                if (TxtBackBtn != null) TxtBackBtn.Text = "🡠 Назад";
+                if (TxtRegTitle != null) TxtRegTitle.Text = "Регистрация в очереди";
+                if (TxtRegNameLabel != null) TxtRegNameLabel.Text = "Введите ваше ФИО:";
+                if (TxtRegCatLabel != null) TxtRegCatLabel.Text = "Категория:";
+                if (BtnRegCancel != null) BtnRegCancel.Content = "Отмена";
+                if (BtnRegConfirm != null) BtnRegConfirm.Content = "ПОЛУЧИТЬ ТАЛОН";
+                if (BtnBookingCancel != null) BtnBookingCancel.Content = "Отмена";
+                if (TxtTicketTitle != null) TxtTicketTitle.Text = "ВАШ ТАЛОН";
+                if (TxtTicketAhead != null) TxtTicketAhead.Text = "Перед вами:";
+                if (BtnTicketClose != null) BtnTicketClose.Content = "Закрыть";
+                if (TxtSearchPlaceholder != null) TxtSearchPlaceholder.Text = "🔍 Поиск услуги...";
             }
             else // ENGLISH
             {
                 if (TxtWhoAreYou != null) TxtWhoAreYou.Text = "Who are you?";
                 if (TxtPhysTitle != null) TxtPhysTitle.Text = "Individual";
+                if (TxtPhysDesc != null) TxtPhysDesc.Text = "Personal documents, certificates";
+                if (TxtLegalTitle != null) TxtLegalTitle.Text = "Legal Entity";
+                if (TxtLegalDesc != null) TxtLegalDesc.Text = "Business, registration, taxes";
                 if (TxtHaveBooking != null) TxtHaveBooking.Text = "I have a scheduled appointment";
                 if (TxtBookingTitle != null) TxtBookingTitle.Text = "Check-in";
                 if (TxtBookingLabel != null) TxtBookingLabel.Text = "Enter booking code:";
                 if (BtnBookingConfirm != null) BtnBookingConfirm.Content = "ACTIVATE";
-
-                // ... Rest of texts ...
+                if (TxtMainHeader != null) TxtMainHeader.Text = "NEW TICKET";
+                if (TxtBackBtn != null) TxtBackBtn.Text = "🡠 Back";
+                if (TxtRegTitle != null) TxtRegTitle.Text = "New Ticket Registration";
+                if (TxtRegNameLabel != null) TxtRegNameLabel.Text = "Enter your Name:";
+                if (TxtRegCatLabel != null) TxtRegCatLabel.Text = "Category:";
+                if (BtnRegCancel != null) BtnRegCancel.Content = "Cancel";
+                if (BtnRegConfirm != null) BtnRegConfirm.Content = "GET TICKET";
+                if (BtnBookingCancel != null) BtnBookingCancel.Content = "Cancel";
+                if (TxtTicketTitle != null) TxtTicketTitle.Text = "YOUR TICKET";
+                if (TxtTicketAhead != null) TxtTicketAhead.Text = "People ahead:";
+                if (BtnTicketClose != null) BtnTicketClose.Content = "Close";
+                if (TxtSearchPlaceholder != null) TxtSearchPlaceholder.Text = "🔍 Search service...";
             }
             if (MainContentGrid.Visibility == Visibility.Visible) UpdateCategories();
         }
@@ -133,14 +178,13 @@ namespace MfcQueueSystem
                 ticket.TicketNumber = $"{prefix}-{countToday:D3}";
 
                 ticket.Status = "Waiting"; // Ставим в живую очередь
-                ticket.Priority = 2;       // Приоритет (как льготник)
+                ticket.Priority = 20;       // Приоритет (как по записи - выше всех)
                 ticket.TimeCreated = DateTime.Now; // Время прихода - сейчас
 
                 db.SaveChanges();
 
                 // Печатаем талон
-                PrintTicket(ticket, 0); // 0 человек перед ним, так как он по записи (VIP)
-
+                PrintTicket(ticket, 0); // 0 человек перед ним (условно), так как высокий приоритет
                 BookingPopup.Visibility = Visibility.Collapsed;
             }
         }
@@ -208,7 +252,7 @@ namespace MfcQueueSystem
             {
                 _tempServiceId = serviceId;
                 InputName.Text = "";
-                CheckBenefit.IsChecked = false;
+                ComboBenefits.SelectedIndex = 0; // Сброс на "Нет льгот"
                 RegistrationPopup.Visibility = Visibility.Visible;
             }
         }
@@ -219,7 +263,7 @@ namespace MfcQueueSystem
         private void ConfirmReg_Click(object sender, RoutedEventArgs e)
         {
             string fio = InputName.Text.Trim();
-            if (string.IsNullOrEmpty(fio)) { MessageBox.Show("ФИО / Name required"); return; }
+            if (string.IsNullOrEmpty(fio)) { MessageBox.Show(_currentLang == "EN" ? "Name required" : "ФИО обязательно"); return; }
 
             using (var db = new Mfc111Context())
             {
@@ -227,7 +271,14 @@ namespace MfcQueueSystem
                 string prefix = service.ServiceName.Substring(0, 1).ToUpper();
                 int countToday = db.Tickets.Count(t => t.TimeCreated.Date == DateTime.Today && t.Status != "Booked") + 1;
                 string ticketNum = $"{prefix}-{countToday:D3}";
-                bool isVip = CheckBenefit.IsChecked == true;
+                
+                // Получаем приоритет из ComboBox
+                int priority = 1; // Default
+                if (ComboBenefits.SelectedItem is ComboBoxItem item && item.Tag != null)
+                {
+                    int.TryParse(item.Tag.ToString(), out priority);
+                    if (priority == 0) priority = 1;
+                }
 
                 var t = new Ticket
                 {
@@ -236,7 +287,7 @@ namespace MfcQueueSystem
                     TimeCreated = DateTime.Now,
                     Status = "Waiting",
                     ClientName = fio,
-                    Priority = isVip ? 2 : 1
+                    Priority = priority
                 };
                 db.Tickets.Add(t);
                 db.SaveChanges();
@@ -258,8 +309,8 @@ namespace MfcQueueSystem
             TicketServiceText.Text = Translate(ticket.Service.ServiceName);
             TicketInfoText.Text = ticket.ClientName;
 
-            // Если приоритет 2 - показываем VIP или ПО ЗАПИСИ
-            if (ticket.Priority == 2)
+            // Если приоритет > 1 - показываем VIP или ПО ЗАПИСИ
+            if (ticket.Priority > 1)
             {
                 TicketPriorityText.Visibility = Visibility.Visible;
                 // Если есть код брони - значит по записи

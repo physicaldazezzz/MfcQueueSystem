@@ -14,7 +14,7 @@ namespace MfcWeb.Controllers
             _db = db;
         }
 
-        // ГЛАВНАЯ: Каталог услуг
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
         public IActionResult Index(string search = "")
         {
             var query = _db.Services.AsQueryable();
@@ -28,7 +28,7 @@ namespace MfcWeb.Controllers
             return View(services);
         }
 
-        // СТРАНИЦА ЗАПИСИ
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
         [HttpGet]
         public IActionResult Book(int id)
         {
@@ -37,25 +37,25 @@ namespace MfcWeb.Controllers
             return View(service);
         }
 
-        // СОХРАНЕНИЕ ЗАПИСИ
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
         [HttpPost]
         public IActionResult Book(int serviceId, string fio, string phone, DateTime date, string time)
         {
-            // Парсим время из строки "14:30"
+            // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ "14:30"
             var timeParts = time.Split(':');
             DateTime appointmentTime = date.Date.AddHours(int.Parse(timeParts[0])).AddMinutes(int.Parse(timeParts[1]));
 
             if (appointmentTime < DateTime.Now)
             {
-                ViewBag.Error = "Нельзя записаться в прошлое!";
+                ViewBag.Error = "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ!";
                 var service = _db.Services.Find(serviceId);
                 return View(service);
             }
 
-            // Генерируем код (4 цифры)
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ (4 пїЅпїЅпїЅпїЅпїЅ)
             string code = new Random().Next(1000, 9999).ToString();
 
-            // Создаем талон
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
             var s = _db.Services.Find(serviceId);
             string prefix = s.ServiceName.Substring(0, 1).ToUpper();
 
@@ -67,19 +67,30 @@ namespace MfcWeb.Controllers
                 PhoneNumber = phone,
                 AppointmentTime = appointmentTime,
                 BookingCode = code,
-                Status = "Booked", // Забронировано (ждет активации)
+                Status = "Booked", // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
                 TimeCreated = DateTime.Now,
-                Priority = 2 // Приоритет для онлайн-записи
+                Priority = 2 // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅ
             };
 
             _db.Tickets.Add(ticket);
             _db.SaveChanges();
 
-            // Лог
+            // пїЅпїЅпїЅ
             _db.QueueLogs.Add(new QueueLog { TicketId = ticket.TicketId, EventTime = DateTime.Now, EventType = "OnlineBooking" });
             _db.SaveChanges();
 
             return View("Success", ticket);
+        }
+
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }
